@@ -17,6 +17,12 @@ describe('Mustache.render', function () {
                   'for mustache#render(template, view, partials)');
   });
 
+  it('resolves simple pipelines', function () {
+    var output = Mustache.render('{{ name | upper }}', { name: 'Santa Claus', upper: function () { return function (text) { return text.toUpperCase(); }; } }, {}, {}); 
+
+    assert.equal(output, 'SANTA CLAUS');
+  });
+
   describe('custom tags', function () {
     it('uses tags argument instead of Mustache.tags when given', function () {
       var template = '<<placeholder>>bar{{placeholder}}';

@@ -387,6 +387,19 @@ Context.prototype.push = function push (view) {
 };
 
 /**
+ * Returns the value of the given name, after resolving all filters.
+ */
+Context.prototype.resolve = function resolve (name, config) {
+  var segments = name.split(/\s*\|\s*/);
+  var value = this.lookup(segments[0], config);
+
+  for (var i = 1; i < segments.length; ++i)
+    value = this.lookup(segments[i], config)(value);
+
+  return value;
+};
+
+/**
  * Returns the value of the given name in this context, traversing
  * up the context hierarchy if the value is absent in this context's view.
  */
@@ -528,8 +541,8 @@ Writer.prototype.parse = function parse (template, tags) {
   return tokens;
 };
 
-Writer.prototype.lookupWithRender = function lookupWithRender (name, context, partials, config) {
-  var value = context.lookup(name, config);
+Writer.prototype.resolveWithRender = function resolveWithRender (name, context, partials, config) {
+  var value = context.resolve(name, config);
 
   // This function is used to render an arbitrary template
   // in the current context by higher-order sections.
@@ -640,7 +653,7 @@ Writer.prototype.renderSection = function renderSection (token, context, partial
 };
 
 Writer.prototype.renderInverted = function renderInverted (token, context, partials, originalTemplate, config) {
-  var value = this.lookupWithRender(token[1], context, partials, config);
+  var value = this.resolveWithRender(token[1], context, partials, config);
 
   // Use JavaScript's definition of falsy. Include empty arrays.
   // See https://github.com/janl/mustache.js/issues/186
@@ -678,14 +691,14 @@ Writer.prototype.renderPartial = function renderPartial (token, context, partial
 };
 
 Writer.prototype.unescapedValue = function unescapedValue (token, context, partials, config) {
-  var value = this.lookupWithRender(token[1], context, partials, config);
+  var value = this.resolveWithRender(token[1], context, partials, config);
   if (value != null)
     return value;
 };
 
 Writer.prototype.escapedValue = function escapedValue (token, context, partials, config) {
   var escape = this.getConfigEscape(config) || mustache.escape;
-  var value = this.lookupWithRender(token[1], context, partials, config);
+  var value = this.resolveWithRender(token[1], context, partials, config);
   if (value != null)
     return (typeof value === 'number' && escape === mustache.escape) ? String(value) : escape(value);
 };
