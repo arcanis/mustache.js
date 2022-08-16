@@ -97,7 +97,13 @@ describe('Mustache.render', function () {
 
       assert.equal(output, 'Santa Claus');
     });
-    
+
+    it('requires a \'.\' prefix when accessing a context variable when Mustache.unambiguousTopLevel is set', function () {
+      var template = '({{val}}){{#section}}[{{val}}][{{.val}}]{{/section}}';
+      
+      assert.equal(Mustache.render(template, { section: { val: 'hello' } }, {}, { unambiguousTopLevel: true }), '()[][hello]');
+    });
+
     it('uses config.escape argument instead of Mustache.escape when given', function () {
       var template = 'Hello, {{placeholder}}';
       

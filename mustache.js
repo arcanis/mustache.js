@@ -390,14 +390,22 @@ Context.prototype.push = function push (view) {
  * Returns the value of the given name in this context, traversing
  * up the context hierarchy if the value is absent in this context's view.
  */
-Context.prototype.lookup = function lookup (name) {
+Context.prototype.lookup = function lookup (name, config) {
   var cache = this.cache;
+  var cacheKey = name;
+
+  var isContextVariable = name[0] === '.' && name !== '.';
+  name = isContextVariable ? name.substring(1) : name;
 
   var value;
-  if (cache.hasOwnProperty(name)) {
-    value = cache[name];
+  if (cache.hasOwnProperty(cacheKey)) {
+    value = cache[cacheKey];
   } else {
     var context = this, intermediateValue, names, index, lookupHit = false;
+
+    if (!isContextVariable && config && config.unambiguousTopLevel)
+      while (context.parent)
+        context = context.parent;
 
     while (context) {
       if (name.indexOf('.') > 0) {
@@ -464,7 +472,7 @@ Context.prototype.lookup = function lookup (name) {
       context = context.parent;
     }
 
-    cache[name] = value;
+    cache[cacheKey] = value;
   }
 
   if (isFunction(value))
@@ -521,7 +529,7 @@ Writer.prototype.parse = function parse (template, tags) {
 };
 
 Writer.prototype.lookupWithRender = function lookupWithRender (name, context, partials, config) {
-  var value = context.lookup(name);
+  var value = context.lookup(name, config);
 
   // This function is used to render an arbitrary template
   // in the current context by higher-order sections.
@@ -600,7 +608,7 @@ Writer.prototype.renderTokens = function renderTokens (tokens, context, partials
 Writer.prototype.renderSection = function renderSection (token, context, partials, originalTemplate, config) {
   var self = this;
   var buffer = '';
-  var value = context.lookup(token[1]);
+  var value = context.lookup(token[1], config);
 
   // This function is used to render an arbitrary template
   // in the current context by higher-order sections.
@@ -711,6 +719,7 @@ var mustache = {
   name: 'mustache.js',
   version: '4.2.0',
   tags: [ '{{', '}}' ],
+  unambiguousTopLevel: false,
   clearCache: undefined,
   escape: undefined,
   parse: undefined,
