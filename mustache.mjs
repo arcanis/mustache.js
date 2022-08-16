@@ -300,7 +300,7 @@ function nestTokens (tokens) {
  * A simple string scanner that is used by the template parser to find
  * tokens in template strings.
  */
-function Scanner (string) {
+export function Scanner (string) {
   this.string = string;
   this.tail = string;
   this.pos = 0;
@@ -360,7 +360,7 @@ Scanner.prototype.scanUntil = function scanUntil (re) {
  * Represents a rendering context by wrapping a view object and
  * maintaining a reference to the parent context.
  */
-function Context (view, parentContext) {
+export function Context (view, parentContext) {
   this.view = view;
   this.cache = { '.': this.view };
   this.parent = parentContext;
@@ -471,7 +471,7 @@ Context.prototype.lookup = function lookup (name, config) {
  * string, given a context. It also maintains a cache of templates to
  * avoid the need to parse the same template twice.
  */
-function Writer () {
+export function Writer () {
   this.templateCache = {
     _cache: {},
     set: function set (key, value) {
@@ -747,7 +747,7 @@ var defaultWriter = new Writer();
 /**
  * Clears all cached templates in the default writer.
  */
-mustache.clearCache = function clearCache () {
+export const clearCache = mustache.clearCache = function clearCache () {
   return defaultWriter.clearCache();
 };
 
@@ -756,7 +756,7 @@ mustache.clearCache = function clearCache () {
  * array of tokens it contains. Doing this ahead of time avoids the need to
  * parse templates on the fly as they are rendered.
  */
-mustache.parse = function parse (template, tags) {
+export const parse = mustache.parse = function parse (template, tags) {
   return defaultWriter.parse(template, tags);
 };
 
@@ -764,7 +764,7 @@ mustache.parse = function parse (template, tags) {
  * Renders the `template` with the given `view`, `partials`, and `config`
  * using the default writer.
  */
-mustache.render = function render (template, view, partials, config) {
+export const render = mustache.render = function render (template, view, partials, config) {
   if (typeof template !== 'string') {
     throw new TypeError('Invalid template! Template should be a "string" ' +
                         'but "' + typeStr(template) + '" was given as the first ' +
@@ -776,11 +776,11 @@ mustache.render = function render (template, view, partials, config) {
 
 // Export the escaping function so that the user may override it.
 // See https://github.com/janl/mustache.js/issues/244
-mustache.escape = escapeHtml;
+export const escape = mustache.escape = escapeHtml;
 
 // Export these mainly for testing, but also for advanced usage.
 mustache.Scanner = Scanner;
 mustache.Context = Context;
 mustache.Writer = Writer;
 
-module.exports = mustache;
+export default mustache;
