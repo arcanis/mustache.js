@@ -21,9 +21,4 @@
     notTrue: false
   },
   singletonList: [{singletonItem: 'singleton item'}],
-  length: function () {
-    return function (val) {
-      return val.length;
-    };
-  },
 });

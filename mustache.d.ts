@@ -383,9 +383,10 @@ export type EQUAL = '=';
 export type TemplateSpanType = RAW_VALUE | ESCAPED_VALUE | SECTION | UNESCAPED_VALUE | INVERTED | COMMENT | PARTIAL | EQUAL;
 
 export type TemplateSpans = Array<
-    | [TemplateSpanType, string, number, number]
-    | [TemplateSpanType, string, number, number, TemplateSpans, number]
-    | [TemplateSpanType, string, number, number, string, number, boolean]
+    | [RAW_VALUE | COMMENT, string, number, number]
+    | [PARTIAL, string, number, number, string, number, boolean]
+    | [ESCAPED_VALUE | UNESCAPED_VALUE, [string, ...string[]], number, number, string, number, boolean]
+    | [SECTION | INVERTED, string, number, number, TemplateSpans, number]
 >;
 
 /**
@@ -412,6 +413,7 @@ export type PartialLookupFn = (partialName: string) => string | undefined;
 export interface RenderOptions {
     escape?: EscapeFunction | undefined;
     tags?: OpeningAndClosingTags | undefined;
+    filters?: Record<string, string> | undefined;
     unambiguousTopLevel?: boolean | undefined;
 }
 

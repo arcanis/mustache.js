@@ -18,27 +18,19 @@ describe('Mustache.render', function () {
   });
 
   it('resolves simple pipelines', function () {
-    var output = Mustache.render('{{ name | upper }}', { name: 'Santa Claus', upper: function () { return function (text) { return text.toUpperCase(); }; } }, {}, {}); 
+    var output = Mustache.render('{{ name | upper }}', { name: 'Santa Claus' }, {}, { filters: { upper: function (text) { return text.toUpperCase(); } } }); 
 
     assert.equal(output, 'SANTA CLAUS');
   });
 
-  it('returns an empty string when used with undefined filters', function () {
-    var output = Mustache.render('{{ name | found | notfound }}', { name: 'Santa Claus', found: function () { return function () { return 'hello'; }; } }, {}, {}); 
+  it('aborts when used with undefined filters', function () {
+    assert.throws(function () {
+      Mustache.render('{{ name | notfound }}', { name: 'Santa Claus' }, {}, {}); 
+    }, Error, 'Filter not found ("notfound")');
 
-    assert.equal(output, '');
-  });
-
-  it('returns an empty string when used with undefined filters', function () {
-    var output = Mustache.render('{{ name | notfound | found }}', { name: 'Santa Claus', found: function () { return function () { return 'hello'; }; } }, {}, {}); 
-
-    assert.equal(output, 'hello');
-  });
-
-  it('returns itself when a filter isn\'t a function', function () {
-    var output = Mustache.render('{{ foo | bar }}', { foo: 'hello', bar: 'world' }, {}, {}); 
-
-    assert.equal(output, 'world');
+    assert.throws(function () {
+      Mustache.render('{{ name | notfound }}', { name: 'Santa Claus' }, {}, { filters: { found: function () { return 'hello'; } } }); 
+    }, Error, 'Filter not found ("notfound")');
   });
 
   describe('custom tags', function () {

@@ -196,8 +196,10 @@ function parseTemplate (template, tags) {
     if (!scanner.scan(closingTagRe))
       throw new Error('Unclosed tag at ' + scanner.pos);
 
-    if (type == '>') {
+    if (type === '>') {
       token = [ type, value, start, scanner.pos, indentation, tagIndex, lineHasNonSpace ];
+    } else if (type == 'name' || type === '&') {
+      token = [ type, value.split(/\s*\|\s*/), start, scanner.pos ];
     } else {
       token = [ type, value, start, scanner.pos ];
     }
@@ -519,17 +521,17 @@ Writer.prototype.prepareValue = function prepareValue (value, context, partials,
   return value;
 };
 
-Writer.prototype.resolveWithRender = function resolveWithRender (name, context, partials, config) {
-  var segments = name.split(/\s*\|\s*/);
-
+Writer.prototype.resolveWithRender = function resolveWithRender (segments, context, partials, config) {
   var value = context.lookup(segments[0], config);
   value = this.prepareValue(value, context, partials, config);
 
   for (var i = 1; i < segments.length; ++i) {
-    var filter = context.lookup(segments[i], config);
+    var filter = config && config.filters && Object.prototype.hasOwnProperty.call(config.filters, segments[i]) && config.filters[segments[i]];
+    if (typeof filter !== 'function') {
+      throw new Error('Filter not found ("' + segments[i] + '")');
+    }
 
-    value = isFunction(filter) ? filter(value) : filter;
-    value = this.prepareValue(value, context, partials, config);
+    value = filter(value);
   }
 
   return value;
@@ -635,7 +637,7 @@ Writer.prototype.renderSection = function renderSection (token, context, partial
 };
 
 Writer.prototype.renderInverted = function renderInverted (token, context, partials, originalTemplate, config) {
-  var value = this.resolveWithRender(token[1], context, partials, config);
+  var value = this.resolveWithRender([token[1]], context, partials, config);
 
   // Use JavaScript's definition of falsy. Include empty arrays.
   // See https://github.com/janl/mustache.js/issues/186
@@ -717,6 +719,7 @@ var mustache = {
   unambiguousTopLevel: false,
   clearCache: undefined,
   escape: undefined,
+  filters: undefined,
   parse: undefined,
   render: undefined,
   Scanner: undefined,
