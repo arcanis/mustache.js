@@ -413,7 +413,7 @@ export type PartialLookupFn = (partialName: string) => string | undefined;
 export interface RenderOptions {
     escape?: EscapeFunction | undefined;
     tags?: OpeningAndClosingTags | undefined;
-    filters?: Record<string, (value: string) => string> | undefined;
+    filters?: Record<string, (value: unknown) => any> | undefined;
     unambiguousTopLevel?: boolean | undefined;
 }
 
