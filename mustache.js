@@ -24,27 +24,6 @@ function escapeRegExp (string) {
   return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
 }
 
-/**
- * Null safe way of checking whether or not an object,
- * including its prototype, has a given property
- */
-function hasProperty (obj, propName) {
-  return obj != null && typeof obj === 'object' && (propName in obj);
-}
-
-/**
- * Safe way of detecting whether or not the given thing is a primitive and
- * whether it has the given property
- */
-function primitiveHasOwnProperty (primitive, propName) {
-  return (
-    primitive != null
-    && typeof primitive !== 'object'
-    && primitive.hasOwnProperty
-    && primitive.hasOwnProperty(propName)
-  );
-}
-
 function checkAccess (container, propName) {
   return Array.isArray(container)
     ? parseInt(propName).toString() === propName
@@ -801,4 +780,4 @@ mustache.Scanner = Scanner;
 mustache.Context = Context;
 mustache.Writer = Writer;
 
-export default mustache;
+module.exports = mustache;
