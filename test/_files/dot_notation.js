@@ -20,5 +20,10 @@
     zero: 0,
     notTrue: false
   },
-  singletonList: [{singletonItem: 'singleton item'}]
+  singletonList: [{singletonItem: 'singleton item'}],
+  length: function () {
+    return function (val) {
+      return val.length;
+    };
+  },
 });

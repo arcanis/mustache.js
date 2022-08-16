@@ -45,6 +45,13 @@ function primitiveHasOwnProperty (primitive, propName) {
   );
 }
 
+function checkAccess (container, propName) {
+  return Array.isArray(container)
+    ? parseInt(propName).toString() === propName
+    : typeof container === 'object' && container
+      && Object.prototype.hasOwnProperty.call(container, propName);
+}
+
 // Workaround for https://issues.apache.org/jira/browse/COUCHDB-577
 // See https://github.com/janl/mustache.js/issues/189
 var regExpTest = RegExp.prototype.test;
@@ -411,7 +418,7 @@ Context.prototype.lookup = function lookup (name, config) {
   name = isContextVariable ? name.substring(1) : name;
 
   var value;
-  if (cache.hasOwnProperty(cacheKey)) {
+  if (Object.prototype.hasOwnProperty.call(cache, cacheKey)) {
     value = cache[cacheKey];
   } else {
     var context = this, intermediateValue, names, index, lookupHit = false;
@@ -445,10 +452,7 @@ Context.prototype.lookup = function lookup (name, config) {
          **/
         while (intermediateValue != null && index < names.length) {
           if (index === names.length - 1)
-            lookupHit = (
-              hasProperty(intermediateValue, names[index])
-              || primitiveHasOwnProperty(intermediateValue, names[index])
-            );
+            lookupHit = checkAccess(intermediateValue, names[index]);
 
           intermediateValue = intermediateValue[names[index++]];
         }
@@ -474,7 +478,7 @@ Context.prototype.lookup = function lookup (name, config) {
          *
          * "The length of a football field is 100 yards."
          **/
-        lookupHit = hasProperty(context.view, name);
+        lookupHit = checkAccess(context.view, name);
       }
 
       if (lookupHit) {
