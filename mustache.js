@@ -394,19 +394,6 @@ Context.prototype.push = function push (view) {
 };
 
 /**
- * Returns the value of the given name, after resolving all filters.
- */
-Context.prototype.resolve = function resolve (name, config) {
-  var segments = name.split(/\s*\|\s*/);
-  var value = this.lookup(segments[0], config);
-
-  for (var i = 1; i < segments.length; ++i)
-    value = this.lookup(segments[i], config)(value);
-
-  return value;
-};
-
-/**
  * Returns the value of the given name in this context, traversing
  * up the context hierarchy if the value is absent in this context's view.
  */
@@ -545,13 +532,25 @@ Writer.prototype.parse = function parse (template, tags) {
   return tokens;
 };
 
-Writer.prototype.resolveWithRender = function resolveWithRender (name, context, partials, config) {
-  var value = context.resolve(name, config);
-
-  // This function is used to render an arbitrary template
-  // in the current context by higher-order sections.
+Writer.prototype.prepareValue = function prepareValue (value, context, partials, config) {
   if (isFunction(value)) {
     value = this.render(value(), context, partials, config);
+  }
+
+  return value;
+};
+
+Writer.prototype.resolveWithRender = function resolveWithRender (name, context, partials, config) {
+  var segments = name.split(/\s*\|\s*/);
+
+  var value = context.lookup(segments[0], config);
+  value = this.prepareValue(value, context, partials, config);
+
+  for (var i = 1; i < segments.length; ++i) {
+    var filter = context.lookup(segments[i], config);
+
+    value = isFunction(filter) ? filter(value) : filter;
+    value = this.prepareValue(value, context, partials, config);
   }
 
   return value;

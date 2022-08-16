@@ -23,6 +23,24 @@ describe('Mustache.render', function () {
     assert.equal(output, 'SANTA CLAUS');
   });
 
+  it('returns an empty string when used with undefined filters', function () {
+    var output = Mustache.render('{{ name | found | notfound }}', { name: 'Santa Claus', found: function () { return function () { return 'hello'; }; } }, {}, {}); 
+
+    assert.equal(output, '');
+  });
+
+  it('returns an empty string when used with undefined filters', function () {
+    var output = Mustache.render('{{ name | notfound | found }}', { name: 'Santa Claus', found: function () { return function () { return 'hello'; }; } }, {}, {}); 
+
+    assert.equal(output, 'hello');
+  });
+
+  it('returns itself when a filter isn\'t a function', function () {
+    var output = Mustache.render('{{ foo | bar }}', { foo: 'hello', bar: 'world' }, {}, {}); 
+
+    assert.equal(output, 'world');
+  });
+
   describe('custom tags', function () {
     it('uses tags argument instead of Mustache.tags when given', function () {
       var template = '<<placeholder>>bar{{placeholder}}';
