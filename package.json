@@ -15,6 +15,7 @@
     "ejs"
   ],
   "main": "mustache.js",
+  "types": "mustache.d.ts",
   "bin": {
     "mustache": "./bin/mustache"
   },
@@ -22,6 +23,7 @@
     "bin/",
     "mustache.mjs",
     "mustache.min.js",
+    "mustache.d.ts",
     "wrappers/"
   ],
   "exports": {
