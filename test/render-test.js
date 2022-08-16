@@ -34,68 +34,68 @@ describe('Mustache.render', function () {
   });
 
   describe('custom tags', function () {
-    it('uses tags argument instead of Mustache.tags when given', function () {
+    it('uses tags argument instead of Mustache.defaultConfig.tags when given', function () {
       var template = '<<placeholder>>bar{{placeholder}}';
 
-      Mustache.tags = ['{{', '}}'];
+      Mustache.defaultConfig.tags = ['{{', '}}'];
       assert.equal(Mustache.render(template, { placeholder: 'foo' }, {}, ['<<', '>>']), 'foobar{{placeholder}}');
     });
     
-    it('uses config.tags argument instead of Mustache.tags when given', function () {
+    it('uses config.tags argument instead of Mustache.defaultConfig.tags when given', function () {
       var template = '<<placeholder>>bar{{placeholder}}';
 
-      Mustache.tags = ['{{', '}}'];
+      Mustache.defaultConfig.tags = ['{{', '}}'];
       assert.equal(Mustache.render(template, { placeholder: 'foo' }, {}, { tags: ['<<', '>>']}),  'foobar{{placeholder}}');
     });
 
-    it('uses tags argument instead of Mustache.tags when given, even when it previously rendered the template using Mustache.tags', function () {
+    it('uses tags argument instead of Mustache.defaultConfig.tags when given, even when it previously rendered the template using Mustache.defaultConfig.tags', function () {
       var template = '((placeholder))bar{{placeholder}}';
 
-      Mustache.tags = ['{{', '}}'];
+      Mustache.defaultConfig.tags = ['{{', '}}'];
       Mustache.render(template, { placeholder: 'foo' });
       assert.equal(Mustache.render(template, { placeholder: 'foo' }, {}, ['((', '))']), 'foobar{{placeholder}}');
     });
     
-    it('uses config.tags argument instead of Mustache.tags when given, even when it previously rendered the template using Mustache.tags', function () {
+    it('uses config.tags argument instead of Mustache.defaultConfig.tags when given, even when it previously rendered the template using Mustache.defaultConfig.tags', function () {
       var template = '((placeholder))bar{{placeholder}}';
 
-      Mustache.tags = ['{{', '}}'];
+      Mustache.defaultConfig.tags = ['{{', '}}'];
       Mustache.render(template, { placeholder: 'foo' });
       assert.equal(Mustache.render(template, { placeholder: 'foo' }, {}, { tags: ['((', '))'] }), 'foobar{{placeholder}}');
     });
 
-    it('uses tags argument instead of Mustache.tags when given, even when it previously rendered the template using different tags', function () {
+    it('uses tags argument instead of Mustache.defaultConfig.tags when given, even when it previously rendered the template using different tags', function () {
       var template = '[[placeholder]]bar<<placeholder>>';
 
       Mustache.render(template, { placeholder: 'foo' }, {}, ['<<', '>>']);
       assert.equal(Mustache.render(template, { placeholder: 'foo' }, {}, ['[[', ']]']), 'foobar<<placeholder>>');
     });
     
-    it('uses config.tags argument instead of Mustache.tags when given, even when it previously rendered the template using different tags', function () {
+    it('uses config.tags argument instead of Mustache.defaultConfig.tags when given, even when it previously rendered the template using different tags', function () {
       var template = '[[placeholder]]bar<<placeholder>>';
 
       Mustache.render(template, { placeholder: 'foo' }, {}, ['<<', '>>']);
       assert.equal(Mustache.render(template, { placeholder: 'foo' }, {}, { tags: ['[[', ']]'] }), 'foobar<<placeholder>>');
     });
 
-    it('does not mutate Mustache.tags when given tags argument', function () {
+    it('does not mutate Mustache.defaultConfig.tags when given tags argument', function () {
       var correctMustacheTags = ['{{', '}}'];
-      Mustache.tags = correctMustacheTags;
+      Mustache.defaultConfig.tags = correctMustacheTags;
 
       Mustache.render('((placeholder))', { placeholder: 'foo' }, {}, ['((', '))']);
 
-      assert.equal(Mustache.tags, correctMustacheTags);
-      assert.deepEqual(Mustache.tags, ['{{', '}}']);
+      assert.equal(Mustache.defaultConfig.tags, correctMustacheTags);
+      assert.deepEqual(Mustache.defaultConfig.tags, ['{{', '}}']);
     });
     
-    it('does not mutate Mustache.tags when given config.tags argument', function () {
+    it('does not mutate Mustache.defaultConfig.tags when given config.tags argument', function () {
       var correctMustacheTags = ['{{', '}}'];
-      Mustache.tags = correctMustacheTags;
+      Mustache.defaultConfig.tags = correctMustacheTags;
 
       Mustache.render('((placeholder))', { placeholder: 'foo' }, {}, { tags: ['((', '))'] });
 
-      assert.equal(Mustache.tags, correctMustacheTags);
-      assert.deepEqual(Mustache.tags, ['{{', '}}']);
+      assert.equal(Mustache.defaultConfig.tags, correctMustacheTags);
+      assert.deepEqual(Mustache.defaultConfig.tags, ['{{', '}}']);
     });
 
     it('uses provided tags when rendering partials', function () {
@@ -120,7 +120,7 @@ describe('Mustache.render', function () {
       assert.equal(Mustache.render(template, { section: { val: 'hello' } }, {}, { unambiguousTopLevel: true }), '()[][hello]');
     });
 
-    it('uses config.escape argument instead of Mustache.escape when given', function () {
+    it('uses config.escape argument instead of Mustache.defaultConfig.escape when given', function () {
       var template = 'Hello, {{placeholder}}';
       
       function escapeBang (text) {
@@ -129,7 +129,7 @@ describe('Mustache.render', function () {
       assert.equal(Mustache.render(template, { placeholder: 'world' }, {}, { escape: escapeBang }), 'Hello, world!');
     });
 
-    it('uses config.escape argument instead of Mustache.escape when given, even when it previously rendered the template using Mustache.escape', function () {
+    it('uses config.escape argument instead of Mustache.defaultConfig.escape when given, even when it previously rendered the template using Mustache.defaultConfig.escape', function () {
       var template = 'Hello, {{placeholder}}';
       
       function escapeQuestion (text) {
@@ -139,7 +139,7 @@ describe('Mustache.render', function () {
       assert.equal(Mustache.render(template, { placeholder: 'world' }, {}, { escape: escapeQuestion }), 'Hello, world?');
     });
 
-    it('uses config.escape argument instead of Mustache.escape when given, even when it previously rendered the template using a different escape function', function () {
+    it('uses config.escape argument instead of Mustache.defaultConfig.escape when given, even when it previously rendered the template using a different escape function', function () {
       var template = 'Hello, {{placeholder}}';
       
       function escapeQuestion (text) {
@@ -152,16 +152,16 @@ describe('Mustache.render', function () {
       assert.equal(Mustache.render(template, { placeholder: 'foo' }, {}, { escape: escapeBang }), 'Hello, foo!');
     });
     
-    it('does not mutate Mustache.escape when given config.escape argument', function () {
-      var correctMustacheEscape = Mustache.escape;
+    it('does not mutate Mustache.defaultConfig.escape when given config.escape argument', function () {
+      var correctMustacheEscape = Mustache.defaultConfig.escape;
 
       function escapeNone (text) {
         return text;
       }
       Mustache.render('((placeholder))', { placeholder: 'foo' }, {}, { escape: escapeNone });
 
-      assert.equal(Mustache.escape, correctMustacheEscape);
-      assert.equal(Mustache.escape('>&'), '&gt;&amp;');
+      assert.equal(Mustache.defaultConfig.escape, correctMustacheEscape);
+      assert.equal(Mustache.defaultConfig.escape('>&'), '&gt;&amp;');
     });
     
     it('uses provided config.escape when rendering partials', function () {
@@ -175,7 +175,7 @@ describe('Mustache.render', function () {
       assert.equal(output, 'Ampersand &&');
     });
     
-    it('uses config.tags and config.escape arguments instead of Mustache.tags and Mustache.escape when given', function () {
+    it('uses config.tags and config.escape arguments instead of Mustache.defaultConfig.tags and Mustache.defaultConfig.escape when given', function () {
       var template = 'Hello, {{placeholder}} [[placeholder]]';
       
       function escapeTwoBangs (text) {

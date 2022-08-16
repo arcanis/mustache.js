@@ -134,15 +134,15 @@ describe('Mustache.parse', function () {
     });
   });
 
-  describe('when parsing a template after already having parsed that template with a different Mustache.tags', function () {
+  describe('when parsing a template after already having parsed that template with a different Mustache.defaultConfig.tags', function () {
     it('returns different tokens for the latter parse', function () {
       var template = '{{foo}}[bar]';
       var parsedWithBraces = Mustache.parse(template);
 
-      var oldTags = Mustache.tags;
-      Mustache.tags = ['[', ']'];
+      var oldTags = Mustache.defaultConfig.tags;
+      Mustache.defaultConfig.tags = ['[', ']'];
       var parsedWithBrackets = Mustache.parse(template);
-      Mustache.tags = oldTags;
+      Mustache.defaultConfig.tags = oldTags;
 
       assert.notDeepEqual(parsedWithBrackets, parsedWithBraces);
     });
@@ -161,7 +161,8 @@ describe('Mustache.parse', function () {
 
   describe('when parsing a template with caching disabled and the same tags second time, do not return the cached tokens', function () {
     it('returns different tokens for the latter parse', function () {
-      Mustache.templateCache = undefined;
+      Mustache.defaultWriter.templateCache = undefined;
+
       var template = '{{foo}}[bar]';
       var parsedResult1 = Mustache.parse(template);
       var parsedResult2 = Mustache.parse(template);
@@ -173,7 +174,7 @@ describe('Mustache.parse', function () {
 
   describe('when parsing a template with custom caching and the same tags second time, do not return the cached tokens', function () {
     it('returns the same tokens for the latter parse', function () {
-      Mustache.templateCache = {
+      Mustache.defaultWriter.templateCache = {
         _cache: [],
         set: function set (key, value) {
           this._cache.push([key, value]);
