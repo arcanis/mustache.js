@@ -9,5 +9,5 @@ npm-debug.log
 .DS_Store
 test/render-test-browser.js
 .idea/
-mustache.mjs
+mustache.js
 mustache.min.js
