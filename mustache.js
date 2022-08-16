@@ -520,6 +520,18 @@ Writer.prototype.parse = function parse (template, tags) {
   return tokens;
 };
 
+Writer.prototype.lookupWithRender = function lookupWithRender (name, context, partials, config) {
+  var value = context.lookup(name);
+
+  // This function is used to render an arbitrary template
+  // in the current context by higher-order sections.
+  if (isFunction(value)) {
+    value = this.render(value(), context, partials, config);
+  }
+
+  return value;
+};
+
 /**
  * High-level method that is used to render the given `template` with
  * the given `view`.
@@ -544,9 +556,12 @@ Writer.prototype.parse = function parse (template, tags) {
  * escaping function is used as the default.
  */
 Writer.prototype.render = function render (template, view, partials, config) {
+  template = '' + template;
+
   var tags = this.getConfigTags(config);
   var tokens = this.parse(template, tags);
   var context = (view instanceof Context) ? view : new Context(view, undefined);
+
   return this.renderTokens(tokens, context, partials, template, config);
 };
 
@@ -571,8 +586,8 @@ Writer.prototype.renderTokens = function renderTokens (tokens, context, partials
     if (symbol === '#') value = this.renderSection(token, context, partials, originalTemplate, config);
     else if (symbol === '^') value = this.renderInverted(token, context, partials, originalTemplate, config);
     else if (symbol === '>') value = this.renderPartial(token, context, partials, config);
-    else if (symbol === '&') value = this.unescapedValue(token, context);
-    else if (symbol === 'name') value = this.escapedValue(token, context, config);
+    else if (symbol === '&') value = this.unescapedValue(token, context, partials, config);
+    else if (symbol === 'name') value = this.escapedValue(token, context, partials, config);
     else if (symbol === 'text') value = this.rawValue(token);
 
     if (value !== undefined)
@@ -609,7 +624,7 @@ Writer.prototype.renderSection = function renderSection (token, context, partial
     value = value.call(context.view, originalTemplate.slice(token[3], token[5]), subRender);
 
     if (value != null)
-      buffer += value;
+      buffer += subRender(value);
   } else {
     buffer += this.renderTokens(token[4], context, partials, originalTemplate, config);
   }
@@ -617,7 +632,7 @@ Writer.prototype.renderSection = function renderSection (token, context, partial
 };
 
 Writer.prototype.renderInverted = function renderInverted (token, context, partials, originalTemplate, config) {
-  var value = context.lookup(token[1]);
+  var value = this.lookupWithRender(token[1], context, partials, config);
 
   // Use JavaScript's definition of falsy. Include empty arrays.
   // See https://github.com/janl/mustache.js/issues/186
@@ -654,15 +669,15 @@ Writer.prototype.renderPartial = function renderPartial (token, context, partial
   }
 };
 
-Writer.prototype.unescapedValue = function unescapedValue (token, context) {
-  var value = context.lookup(token[1]);
+Writer.prototype.unescapedValue = function unescapedValue (token, context, partials, config) {
+  var value = this.lookupWithRender(token[1], context, partials, config);
   if (value != null)
     return value;
 };
 
-Writer.prototype.escapedValue = function escapedValue (token, context, config) {
+Writer.prototype.escapedValue = function escapedValue (token, context, partials, config) {
   var escape = this.getConfigEscape(config) || mustache.escape;
-  var value = context.lookup(token[1]);
+  var value = this.lookupWithRender(token[1], context, partials, config);
   if (value != null)
     return (typeof value === 'number' && escape === mustache.escape) ? String(value) : escape(value);
 };

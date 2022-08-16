@@ -22,12 +22,6 @@ var skipTests = {
     'Standalone Without Newline'
   ],
   '~lambdas': [
-    'Interpolation',
-    'Interpolation - Expansion',
-    'Interpolation - Alternate Delimiters',
-    'Interpolation - Multiple Calls',
-    'Escaping',
-    'Section - Expansion',
     'Section - Alternate Delimiters'
   ]
 };
